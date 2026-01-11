@@ -17,15 +17,24 @@ import {
 import { Input } from "@/components/ui/input";
 export function LoginForm({
   className,
+  token,
+  setToken,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  token: string | null;
+  setToken: (token: string | null) => void;
+}) {
   const fetchData = async () => {
     const response = await fetch("http://192.168.79.101:3000");
-    const data = await response.json()
+    const data = await response.json();
     console.log(data);
   };
 
   fetchData();
+
+  console.log("Token:", token);
+
+  setToken("hello");
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
