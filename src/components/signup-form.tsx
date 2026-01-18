@@ -21,7 +21,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   const createAccount = async () => {
     console.log(formdata);
-    const response = await fetch("http://192.168.79.101:3000/api/auth/signup", {
+    const response = await fetch("http://localhost:3000/api/auth/signup", {
       body: JSON.stringify(formdata),
       method: "POST",
       headers: {

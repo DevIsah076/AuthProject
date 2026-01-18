@@ -14,27 +14,36 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+
+import { useSelector, useDispatch } from "react-redux";
 import { Input } from "@/components/ui/input";
+import type { RootState } from "@/app/store";
+import { useState } from "react";
+import { setToken } from "@/app/slice/authSlice";
+
 export function LoginForm({
   className,
-  token,
-  setToken,
   ...props
-}: React.ComponentProps<"div"> & {
-  token: string | null;
-  setToken: (token: string | null) => void;
-}) {
+}: React.ComponentProps<"div"> & {}) {
+  const [formData, setFormaData] = useState({ email: "", password: "" });
+
+  const reduxToken = useSelector((state: RootState) => state.auth.token);
+  console.log("Current token from Redux store:", reduxToken);
+
+  const dispatch = useDispatch();
   const fetchData = async () => {
-    const response = await fetch("http://192.168.79.101:3000");
+    const response = await fetch("http://localhost:3000/api/auth/signin", {
+      method: "POST",
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     const data = await response.json();
-    console.log(data);
+    console.log(data.token);
+
+    dispatch(setToken(data.token));
   };
-
-  fetchData();
-
-  console.log("Token:", token);
-
-  setToken("hello");
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -53,6 +62,10 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
+                  value={formData.email}
+                  onChange={(e) => {
+                    setFormaData({ ...formData, email: e.target.value });
+                  }}
                   placeholder="m@example.com"
                   required
                 />
@@ -67,10 +80,27 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  value={formData.password}
+                  onChange={(e) => {
+                    setFormaData({ ...formData, password: e.target.value });
+                  }}
+                  id="password"
+                  type="password"
+                  required
+                />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    fetchData();
+                  }}
+                  type="submit"
+                >
+                  Login
+                </Button>
                 <Button variant="outline" type="button">
                   Login with Google
                 </Button>
