@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
-  CardDescription,
+  CardDescription, 
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -30,7 +30,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     });
     const result = await response.json();
     console.log(result);
-    localStorage.setItem("token", result.token);
+    localStorage.setItem("token", result.token);  
   };
 
   return (
