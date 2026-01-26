@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 export function LoginForm({
   className,
@@ -74,6 +76,26 @@ export function LoginForm({
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
+
+                    signInWithEmailAndPassword(
+                      auth,
+                      formData.email,
+                      formData.password,
+                    )
+                      .then((userCredential) => {
+                        // Signed in
+                        const user = userCredential.user;
+                        console.log(user);
+
+                        toast.success("Logged in successfully!");
+                        // ...
+                      })
+                      .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+
+                        toast.error(`Error ${errorCode}: ${errorMessage}`);
+                      });
                   }}
                   type="submit"
                 >

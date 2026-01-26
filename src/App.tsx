@@ -1,34 +1,65 @@
-// import { useState } from "react";
-// import reactLogo from "./assets/react.svg";
-// import viteLogo from "/vite.svg";
 import "./App.css";
 
-import Signup from "./Signup";
-import Login from "./components/login";
+import Signup from "./pages/Signup";
+import Login from "./pages/login";
 import { Routes, Route } from "react-router-dom";
 import { Button } from "./components/ui/button";
-import { useDispatch } from "react-redux";
-import { resetToken } from "./app/slice/authSlice";
+import { signOut } from "firebase/auth";
+import { auth } from "./lib/firebase";
+import { toast } from "react-toastify";
+import { onAuthStateChanged } from "firebase/auth";
+import Home from "./pages/Home";
+import { useEffect, useState } from "react";
 
 function App() {
-  // const [count, setCount] = useState(0);
-  const dispatch = useDispatch();
+  const [user, setUser] = useState<{ email: string } | null>({ email: "" });
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({ email: firebaseUser.email! });
+
+        // ...
+      } else {
+        // User is signed out
+
+        setUser(null);
+        // ...
+        console.log("user is signed out");
+      }
+    });
+  }, []);
 
   return (
     <>
       <div>
         <Button
           onClick={() => {
-            dispatch(resetToken());
+            signOut(auth)
+              .then(() => {
+                // Sign-out successful.
+                toast.success("Logged out successfully!");
+              })
+              .catch((error) => {
+                // An error happened.
+                toast.error(`Error logging out: ${error.message}`);
+              });
           }}
         >
           logout
         </Button>
       </div>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
+
+      {user ? (
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      )}
     </>
   );
 }
