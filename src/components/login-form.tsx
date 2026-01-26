@@ -15,35 +15,15 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 
-import { useSelector, useDispatch } from "react-redux";
 import { Input } from "@/components/ui/input";
-import type { RootState } from "@/app/store";
+
 import { useState } from "react";
-import { setToken } from "@/app/slice/authSlice";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div"> & {}) {
   const [formData, setFormaData] = useState({ email: "", password: "" });
-
-  const reduxToken = useSelector((state: RootState) => state.auth.token);
-  console.log("Current token from Redux store:", reduxToken);
-
-  const dispatch = useDispatch();
-  const fetchData = async () => {
-    const response = await fetch("http://localhost:3000/api/auth/signin", {
-      method: "POST",
-      body: JSON.stringify(formData),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    console.log(data.token);
-
-    dispatch(setToken(data.token));
-  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -94,8 +74,6 @@ export function LoginForm({
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
-
-                    fetchData();
                   }}
                   type="submit"
                 >

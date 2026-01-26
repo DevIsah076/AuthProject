@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
-  CardDescription, 
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -15,23 +15,12 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { toast } from "react-toastify";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [formdata, setFormData] = useState({ email: "", password: "" });
-
-  const createAccount = async () => {
-    console.log(formdata);
-    const response = await fetch("http://localhost:3000/api/auth/signup", {
-      body: JSON.stringify(formdata),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const result = await response.json();
-    console.log(result);
-    localStorage.setItem("token", result.token);  
-  };
 
   return (
     <Card {...props}>
@@ -90,7 +79,26 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
-                    createAccount();
+                    createUserWithEmailAndPassword(
+                      auth,
+                      formdata.email,
+                      formdata.password,
+                    )
+                      .then((userCredential) => {
+                        // Signed up
+                        const user = userCredential.user;
+                        console.log(user);
+
+                        toast.success("Account created successfully!");
+                        // ...
+                      })
+                      .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+
+                        toast.error(`Error ${errorCode}: ${errorMessage}`);
+                        // ..
+                      });
                   }}
                   type="submit"
                 >
