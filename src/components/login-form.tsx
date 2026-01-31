@@ -20,6 +20,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+const provider = new GoogleAuthProvider();
 
 export function LoginForm({
   className,
@@ -101,7 +103,44 @@ export function LoginForm({
                 >
                   Login
                 </Button>
-                <Button variant="outline" type="button">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    signInWithPopup(auth, provider)
+                      .then((result) => {
+                        // This gives you a Google Access Token. You can use it to access the Google API.
+                        const credential =
+                          GoogleAuthProvider.credentialFromResult(result);
+                        const token = credential!.accessToken;
+                        // The signed-in user info.
+                        const user = result.user;
+
+                        console.log(user);
+                        toast.success("Logged in successfully!");
+                        console.log(token);
+                        // IdP data available using getAdditionalUserInfo(result)
+                        // ...
+                      })
+                      .catch((error) => {
+                        // Handle Errors here.
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        // The email of the user's account used.
+                        const email = error.customData.email;
+                        // The AuthCredential type that was used.
+                        const credential =
+                          GoogleAuthProvider.credentialFromError(error);
+                        // ...
+
+                        toast.error(`Error ${errorCode}: ${errorMessage}`);
+                        console.log(credential);
+                        console.log(email);
+                      });
+                  }}
+                  variant="outline"
+                  type="button"
+                >
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
