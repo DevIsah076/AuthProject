@@ -16,10 +16,12 @@ import {
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
-import { signInWithEmailAndPassword } from "firebase/auth";
+// import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setToken } from "@/app/slice/authSlice";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 const provider = new GoogleAuthProvider();
 
@@ -27,8 +29,13 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div"> & {}) {
+  const dispatch = useDispatch();
   const [formData, setFormaData] = useState({ email: "", password: "" });
 
+  // const fetchData = async ()=> {
+
+  // fetchData()
+  // }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -76,28 +83,45 @@ export function LoginForm({
               </Field>
               <Field>
                 <Button
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault();
-                    
-                   signInWithEmailAndPassword(
-                      auth,
-                      formData.email,
-                      formData.password,
-                    )
-                      .then((userCredential) => {
-                        // Signed in
-                        const user = userCredential.user;
-                        console.log(user);
+                    const response = await fetch(
+                      "https://tr2mkxsx-3005.uks1.devtunnels.ms/auth/login",
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          email: formData.email,
+                          password: formData.password,
+                        }),
+                      },
+                    );
 
-                        toast.success("Logged in successfully!");
-                        // ...
-                      })
-                      .catch((error) => {
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
+                    const data = await response.json();
 
-                        toast.error(`Error ${errorCode}: ${errorMessage}`);
-                      });
+                    dispatch(setToken(data.token));
+
+                    //  signInWithEmailAndPassword(
+                    //     auth,
+                    //     formData.email,
+                    //     formData.password,
+                    //   )
+                    //     .then((userCredential) => {
+                    //       // Signed in
+                    //       const user = userCredential.user;
+                    //       console.log(user);
+
+                    //       toast.success("Logged in successfully!");
+                    //       // ...
+                    //     })
+                    //     .catch((error) => {
+                    //       const errorCode = error.code;
+                    //       const errorMessage = error.message;
+
+                    //       toast.error(`Error ${errorCode}: ${errorMessage}`);
+                    //     });
                   }}
                   type="submit"
                 >
