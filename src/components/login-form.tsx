@@ -78,8 +78,8 @@ export function LoginForm({
                 <Button
                   onClick={(e) => {
                     e.preventDefault();
-
-                    signInWithEmailAndPassword(
+                    
+                   signInWithEmailAndPassword(
                       auth,
                       formData.email,
                       formData.password,

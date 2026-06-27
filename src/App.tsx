@@ -1,5 +1,4 @@
 import "./App.css";
-
 import Signup from "./pages/Signup";
 import Login from "./pages/login";
 import { Routes, Route } from "react-router-dom";
@@ -10,25 +9,28 @@ import { toast } from "react-toastify";
 import { onAuthStateChanged } from "firebase/auth";
 import Home from "./pages/Home";
 import { useEffect, useState } from "react";
+  
 
-function App() {
-  const [user, setUser] = useState<{ email: string } | null>({ email: "" });
+ function App() {
+  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { 
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      setUser({ email: firebaseUser.email! });
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
+  });
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({ email: firebaseUser.email! });
+  return unsubscribe;
+}, []);
+if (loading) {
+  return <div>Loading...</div>;
+}
 
-        // ...
-      } else {
-        // User is signed out
 
-        setUser(null);
-        // ...
-        console.log("user is signed out");
-      }
-    });
-  }, []);
 
   return (
     <>
@@ -59,6 +61,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
+
       )}
     </>
   );

@@ -18,9 +18,40 @@ import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { toast } from "react-toastify";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+const provider = new GoogleAuthProvider();
+// import { serverTimestamp, doc, setDoc } from "firebase/firestore";
+// import { database } from "@/lib/firebase";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [formdata, setFormData] = useState({ email: "", password: "" });
+
+  // const handleSignup = async () => {
+  //   // e.preventDefault();
+
+  //   try{
+  //     // 1. Create account
+  //      const userCredential= createUserWithEmailAndPassword(
+  //       auth,
+  //       formdata.email,
+  //       formdata.password,
+  //     )
+
+  //     // 2. Get UID
+  //     const user = (await userCredential).user;
+  //     console.log(user)
+  //     // 3. Save to Firestore
+  //     await setDoc(doc(database, "users", user.uid), {
+  //       name: name,
+  //       email: formdata.email,
+  //       createdAt: serverTimestamp(),
+  //     });
+
+  //     toast.success("User created and saved to Firestore");
+  //   } catch (error) {
+  //     toast.error("Signup error:");
+  //   }
+  // };
 
   return (
     <Card {...props}>
@@ -47,7 +78,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 onChange={(e) => {
                   setFormData({ ...formdata, email: e.target.value });
                 }}
-              />
+              />     
               <FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
                 with anyone else.
@@ -88,23 +119,59 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                         // Signed up
                         const user = userCredential.user;
                         console.log(user);
-
+                        // console.log(setDoc);
                         toast.success("Account created successfully!");
-                        // ...
                       })
+
                       .catch((error) => {
                         const errorCode = error.code;
                         const errorMessage = error.message;
 
                         toast.error(`Error ${errorCode}: ${errorMessage}`);
-                        // ..
                       });
-                  }}
+                  }} 
                   type="submit"
                 >
                   Create Account
                 </Button>
-                <Button variant="outline" type="button">
+                <Button
+                  onClick={() => {
+              
+
+                    signInWithPopup(auth, provider)
+                      .then((result) => {
+                        // This gives you a Google Access Token. You can use it to access the Google API.
+                        const credential =
+                          GoogleAuthProvider.credentialFromResult(result);
+                        const token = credential!.accessToken;
+                        // The signed-in user info.
+                        const user = result.user;
+
+                        console.log(user);
+                        toast.success("Logged in successfully!");
+                        console.log(token);
+                        // IdP data available using getAdditionalUserInfo(result)
+                        // ...
+                      })
+                      .catch((error) => {
+                        // Handle Errors here.
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        // The email of the user's account used.
+                        const email = error.customData.email;
+                        // The AuthCredential type that was used.
+                        const credential =
+                          GoogleAuthProvider.credentialFromError(error);
+                        // ...
+
+                        toast.error(`Error ${errorCode}: ${errorMessage}`);
+                        console.log(credential);
+                        console.log(email);
+                      });
+                  }}
+                  variant="outline"
+                  type="button"
+                >
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
