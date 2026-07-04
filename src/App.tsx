@@ -2,57 +2,43 @@ import "./App.css";
 import Signup from "./pages/Signup";
 import Login from "./pages/login";
 import { Routes, Route } from "react-router-dom";
-import { Button } from "./components/ui/button";
-import { signOut } from "firebase/auth";
-import { auth } from "./lib/firebase";
-import { toast } from "react-toastify";
-import { onAuthStateChanged } from "firebase/auth";
+// import { Button } from "./components/ui/button";
+// import { signOut } from "firebase/auth";
+// import { auth } from "./lib/firebase";
+// import { toast } from "react-toastify";
+// import { onAuthStateChanged } from "firebase/auth";
 import Home from "./pages/Home";
-import { useEffect, useState } from "react";
-  
+import { useSelector } from "react-redux";
+import type { RootState } from "./app/store";
+// import { LoginForm } from "./components/login-form";
+// import { Button } from "./components/ui/button";
+import { LoginForm } from "./components/login-form";
+import { Button } from "./components/ui/button";
+import { resetToken } from "./app/slice/authSlice";
+// import { SignupForm } from "./components/signup-form";00
 
- function App() {
-  const [user, setUser] = useState<{ email: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { 
-  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-    if (firebaseUser) {
-      setUser({ email: firebaseUser.email! });
-    } else {
-      setUser(null);
-    }
-    setLoading(false);
-  });
+function App() {
+  const token = useSelector((state: RootState) => state.auth.token);
 
-  return unsubscribe;
-}, []);
-if (loading) {
-  return <div>Loading...</div>;
-}
-
-
+  if (token) {
+    return <Home />;
+  } else {
+    return <LoginForm />;
+  }
 
   return (
     <>
-      <div>
-        <Button
-          onClick={() => {
-            signOut(auth)
-              .then(() => {
-                // Sign-out successful.
-                toast.success("Logged out successfully!");
-              })
-              .catch((error) => {
-                // An error happened.
-                toast.error(`Error logging out: ${error.message}`);
-              });
-          }}
-        >
-          logout
-        </Button>
-      </div>
-
-      {user ? (
+      <Button
+        className="bg-black text-5xl"
+        onClick={() => {
+          if (token) {
+            resetToken();
+          }
+        }}
+      >
+        Logout
+      </Button>
+      {token ? (
         <Routes>
           <Route path="/" element={<Home />} />
         </Routes>
@@ -61,7 +47,6 @@ if (loading) {
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
-
       )}
     </>
   );

@@ -23,19 +23,19 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setToken } from "@/app/slice/authSlice";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import type { AppDispatch, RootState } from "@/app/store";
+import { useSelector } from "react-redux";
 const provider = new GoogleAuthProvider();
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div"> & {}) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [formData, setFormaData] = useState({ email: "", password: "" });
 
-  // const fetchData = async ()=> {
+  const token = useSelector((state: RootState) => state.auth.token);
 
-  // fetchData()
-  // }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -86,7 +86,7 @@ export function LoginForm({
                   onClick={async (e) => {
                     e.preventDefault();
                     const response = await fetch(
-                      "https://tr2mkxsx-3005.uks1.devtunnels.ms/auth/login",
+                      "http://localhost:3005/auth/login",
                       {
                         method: "POST",
                         headers: {
@@ -100,8 +100,10 @@ export function LoginForm({
                     );
 
                     const data = await response.json();
+                    dispatch(setToken(data.access_token));
 
-                    dispatch(setToken(data.token));
+                    console.log(data);
+                    console.log(token);
 
                     //  signInWithEmailAndPassword(
                     //     auth,
