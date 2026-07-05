@@ -14,28 +14,20 @@ import type { RootState } from "./app/store";
 // import { Button } from "./components/ui/button";
 import { LoginForm } from "./components/login-form";
 import { Button } from "./components/ui/button";
+import { useDispatch } from "react-redux";
 import { resetToken } from "./app/slice/authSlice";
 // import { SignupForm } from "./components/signup-form";00
 
 function App() {
   const token = useSelector((state: RootState) => state.auth.token);
-
-  if (token) {
-    return <Home />;
-  } else {
-    return <LoginForm />;
-  }
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(resetToken());
+  };
 
   return (
     <>
-      <Button
-        className="bg-black text-5xl"
-        onClick={() => {
-          if (token) {
-            resetToken();
-          }
-        }}
-      >
+      <Button className="bg-black text-5xl" onClick={handleLogout}>
         Logout
       </Button>
       {token ? (
@@ -53,3 +45,6 @@ function App() {
 }
 
 export default App;
+function dispatch(arg0: { payload: undefined; type: "auth/resetToken" }) {
+  throw new Error("Function not implemented.");
+}
